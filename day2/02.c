@@ -1,22 +1,25 @@
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 #define MAX_REPORTS 1000
+#define MAX_LENGHT 24
 #define MAX_LEVELS 8
 
-int getData(char filename[], int reports[][MAX_LEVELS]);
-void checkConditions(int reports[][MAX_REPORTS], int items);
+int getReports(char filename[], char rawReports[][MAX_LENGHT]);
+void stringToInt(char rawReport[][MAX_LENGHT], int items, int report[][MAX_LEVELS]);
+void checkConditions(int reports[][MAX_LEVELS], int items);
 
 int main()
 {
-    int report[MAX_REPORTS][MAX_LEVELS];
+    char rawReport[MAX_REPORTS][MAX_LENGHT];
+    /*Since none of the levels equals 0, i will initialize all of the values to prevent random numbers*/
+    int report[MAX_REPORTS][MAX_LEVELS] = {{0}};
     int i, j;
     int items;
 
-    /*Since none of the levels equals 0, i will initialize all of the values to prevent random numbers*/
-    for (i = 0; i < MAX_REPORTS; i++)
-        for (j = 0; j < MAX_LEVELS; j++)
-            report[i][j] = 0;
-
-    items = getData("data.txt", report);
+    /*New approach: get all reports as a whole, then separate the levels*/
+    items = getReports("data.txt", rawReport);
+    stringToInt(rawReport, items, report);
 
     for (i = 0; i < 1000; i++) {
         for (j = 0; j < MAX_LEVELS; j++) {
@@ -29,19 +32,40 @@ int main()
 }
 
 
-int getData(char filename[], int reports[][MAX_LEVELS])
+int getReports(char filename[], char rawReports[][MAX_LENGHT])
 {
     FILE *file = fopen(filename, "rt");
-    int i, j = 0;
+    int i = 0;
+
+    while(fscanf(file, "%[^\n]\n", rawReports[i]) == 1 && i < MAX_REPORTS)
+    {
+        i++;
+    }  
     
-
-  
-
     fclose(file);
     return i;
 }
 
-void checkConditions(int reports[][MAX_REPORTS], int items)
+void stringToInt(char rawReport[][MAX_LENGHT], int items, int report[][MAX_LEVELS])
+{
+    int i;
+
+    for (i = 0; i < items; i++)
+    {
+        char *token = strtok(rawReport[i], " ");
+        int j = 0;
+
+        while (token != NULL && j < MAX_LEVELS)
+        {
+            report[i][j] = atoi(token);
+            token = strtok(NULL, " ");
+            j++;
+        }     
+    }
+}
+
+
+void checkConditions(int reports[][MAX_LEVELS], int items)
 {
     int i, j = 0;
 
