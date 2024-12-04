@@ -67,39 +67,56 @@ void stringToInt(char rawReport[][MAX_LENGHT], int items, int report[][MAX_LEVEL
     }
 }
 
-
 void checkConditions(int report[][MAX_LEVELS], int items, int safe[], int levels[])
 {
-    int i, j, a, count = 0;
+    int i, j, a, b, ascendant, descendant = 0;
 
     for (i = 0; i < items; i++)
     {
-        count = 0;
-        /*if first level is greater than the second, then all must be and vice versa*/
-        if (report[i][0] < report[i][1])
+        a = b = ascendant = descendant = 0;
+
+        for (j = 1; j < levels[i]; j++)
         {
-            for (j = 1; j < levels[i]; j++)
-            {
-                    a = report[i][j] - report[i][j - 1];
-                    if ( 1 <= a && a <= 3)
-                        count++;               
-            }
-            
-            if (levels[i] == (count + 1))
-                safe[i] = 1;
+                a = report[i][j] - report[i][j - 1];
+                if ( 1 <= a && a <= 3)
+                    ascendant++;  
+        
+                b = report[i][j - 1] - report[i][j];
+                if ( 1 <= b && b <= 3)
+                    descendant++;    
         }
 
-        if (report[i][0] > report[i][1])
+        if (ascendant == levels[i] - 1 || descendant == levels[i] - 1)
+            safe[i] = 1;
+        
+        /*check removing each value. 
+        couldn't figure this out on my own*/
+        for (j = 0; j < levels[i]; j++) 
         {
-            for (j = 1; j < levels[i]; j++)
+            int tempAscendant = 0, tempDescendant = 0;
+            int lastIndex = -1;
+
+            for (int k = 0; k < levels[i]; k++)
             {
-                    a = report[i][j - 1] - report[i][j];
-                    if ( 1 <= a && a <= 3)
-                        count++;                
+                if (k == j) 
+                    continue;
+
+                if (lastIndex != -1)
+                {
+                    a = report[i][k] - report[i][lastIndex];
+                    if (1 <= a && a <= 3)
+                        tempAscendant++;
+
+                    b = report[i][lastIndex] - report[i][k];
+                    if (1 <= b && b <= 3)
+                        tempDescendant++;
+                }
+
+                lastIndex = k;
             }
-            
-            if (levels[i] == (count + 1))
-                safe[i] = 1;            
+
+            if (tempAscendant == levels[i] - 2 || tempDescendant == levels[i] - 2)          
+                safe[i] = 1;
         }
     }
 }
